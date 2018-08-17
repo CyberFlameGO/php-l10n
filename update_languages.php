@@ -1,5 +1,5 @@
 <?php
-// update_languages.php 1.0 - Copyright (c) 2018, Hellsh Ltd. - https://github.com/hellshltd/L10nUtils
+// update_languages.php 1.0 - Copyright (c) 2018, Hellsh - https://github.com/hell-sh/L10nUtils
 
 $translation_folder = "lang/";
 $primary_language = "en";
