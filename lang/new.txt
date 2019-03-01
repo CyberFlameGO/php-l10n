@@ -1,0 +1,2 @@
+> This is a translation file.
+# hello=Hello, world!

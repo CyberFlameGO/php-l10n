@@ -1,15 +1,13 @@
 <?php
-// read_languages.php 1.0 - Copyright (c) 2018, Hellsh - https://github.com/hell-sh/L10nUtils
-
 $translation_folder = "lang/";
-$primary_language = "en";
+$main_language = "en";
 $extra_languages = ["de"];
 
 function getLangArr($lang_code)
 {
 	$langarr = [];
-	global $translation_folder, $primary_language, $extra_languages;
-	if($lang_code != $primary_language && in_array($lang_code, $extra_languages))
+	global $translation_folder, $main_language, $extra_languages;
+	if($lang_code != $main_language && in_array($lang_code, $extra_languages))
 	{
 		foreach(file($translation_folder.$lang_code.".txt") as $line)
 		{
@@ -30,7 +28,7 @@ function getLangArr($lang_code)
 	}
 	else
 	{
-		foreach(file($translation_folder.$primary_language.".txt") as $line)
+		foreach(file($translation_folder.$main_language.".txt") as $line)
 		{
 			$arr = explode("=", str_replace("\n", "", str_replace("\r", "", $line)));
 			if(count($arr) == 2 && !empty($arr[1]))
@@ -45,3 +43,15 @@ function getLangArr($lang_code)
 	}
 	return $langarr;
 }
+
+$subdomain = strtolower(explode(".", $_SERVER["HTTP_HOST"])[0]);
+if(in_array($subdomain, $supported_langs))
+{
+	$lang = getLangArr($subdomain);
+}
+else
+{
+	$lang = getLangArr($main_language);
+}
+
+// echo $lang["hello"];
