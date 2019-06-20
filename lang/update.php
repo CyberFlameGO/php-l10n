@@ -1,6 +1,11 @@
 <?php
 $main_language = "en";
 
+if(empty($argv))
+{
+	die("For security purposes this script may only be executed using PHP-CLI.\n");
+}
+
 echo "[".date("r")."] Reading {$main_language}.txt...\n";
 $format = file($main_language.".txt");
 $translations = false;
