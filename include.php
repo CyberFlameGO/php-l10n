@@ -1,14 +1,27 @@
 <?php
+// Config:
 $translation_folder = "lang/";
 $main_language = "en";
-$extra_languages = ["de"];
+// Feel free to hardcode languages here for more performance:
+$extra_languages = array_keys(json_decode(file_get_contents($translation_folder."/translations.json", true)));
+
+if(headers_sent($file, $line))
+{
+	die("php-l10n fatal error: headers have already been sent in {$file}:{$line}\n");
+}
+header("Vary: Accept-Language");
 
 function getLangArr($lang_code)
 {
-	$langarr = [];
+	$lang = [];
 	global $translation_folder, $main_language, $extra_languages;
-	if($lang_code != $main_language && in_array($lang_code, $extra_languages))
+	if($lang_code != $main_language)
 	{
+		if(!in_array($lang_code, $extra_languages))
+		{
+			trigger_error("getLangArr called for unsupported language: ".$lang_code);
+			return getLangArr($main_language);
+		}
 		foreach(file($translation_folder.$lang_code.".txt") as $line)
 		{
 			$arr = explode("=", str_replace("\n", "", str_replace("\r", "", $line)));
@@ -22,7 +35,7 @@ function getLangArr($lang_code)
 				{
 					$arr[0] = substr($arr[0], 2);
 				}
-				$langarr[$arr[0]] = $arr[1];
+				$lang[$arr[0]] = $arr[1];
 			}
 		}
 	}
@@ -37,21 +50,40 @@ function getLangArr($lang_code)
 				{
 					continue;
 				}
-				$langarr[$arr[0]] = $arr[1];
+				$lang[$arr[0]] = $arr[1];
 			}
 		}
 	}
-	return $langarr;
+	return $lang;
 }
 
-$subdomain = strtolower(explode(".", $_SERVER["HTTP_HOST"])[0]);
-if(in_array($subdomain, $supported_langs))
+$lang = false;
+if(!empty($_SERVER["HTTP_ACCEPT_LANGUAGE"]))
 {
-	$lang = getLangArr($subdomain);
+	foreach(explode(",", $_SERVER["HTTP_ACCEPT_LANGUAGE"]) as $lang_code)
+	{
+		$lang_code = strtolower(trim(explode(";", $lang_code)[0]));
+		if($lang_code == $main_language || in_array($lang_code, $extra_languages))
+		{
+			$lang = true;
+			break;
+		}
+		$pos = strpos($lang_code, "-");
+		if($pos !== false)
+		{
+			$lang_code = substr($lang_code, 0, $pos);
+			if($lang_code == $main_language || in_array($lang_code, $extra_languages))
+			{
+				$lang = true;
+				break;
+			}
+		}
+	}
 }
-else
+if(!$lang)
 {
-	$lang = getLangArr($main_language);
+	$lang_code = $main_language;
 }
+$lang = getLangArr($lang_code);
 
 // echo $lang["hello"];

@@ -17,6 +17,11 @@ foreach(scandir(".") as $file)
 {
 	if(!is_dir($file)&&substr($file,-4)==".txt"&&$file!=$main_language.".txt")
 	{
+		if(strtolower($file)!=$file)
+		{
+			echo "[".date("r")."] Translation file names should be in lowercase: ".$file."\n";
+			continue;
+		}
 		$strings = [];
 		echo "[".date("r")."] Processing ".$file."...\n";
 		foreach(file($file) as $line)
